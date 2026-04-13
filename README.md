@@ -191,6 +191,14 @@ Describe your scoring logic in plain language.
 
 Try to avoid code in this section, treat it like an explanation to a non programmer.
 
+
+## CLI Output Example
+
+Here is an example of the recommender system running in the terminal:
+
+![CLI Output](/Users/nanda/Documents/ai110-module3show-musicrecommendersimulation-starter/CLI.png)
+
+
 ---
 
 ## 4. Data

@@ -47,46 +47,47 @@ class Recommender:
         return "Explanation placeholder"
 
 def load_songs(filepath):
+    """Load and type-cast songs from a CSV file into a list of dicts."""
+    int_fields = {'id'}
+    float_fields = {'energy', 'tempo_bpm', 'valence', 'danceability', 'acousticness'}
+
     songs = []
-    with open(filepath, mode='r') as file:
+    with open(filepath, newline='', encoding='utf-8') as file:
         reader = csv.DictReader(file)
         for row in reader:
-            row['energy'] = float(row['energy'])
-            row['tempo_bpm'] = int(row['tempo_bpm'])
+            for field in int_fields:
+                row[field] = int(row[field])
+            for field in float_fields:
+                row[field] = float(row[field])
             songs.append(row)
+
+    print(f"Loaded songs: {len(songs)}")
     return songs
 
 def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
-    score = 0
+    """Score a single song against user preferences and return the score with reasons."""
+    score = 0.0
     reasons = []
 
-    # Genre match
     if song['genre'] == user_prefs['genre']:
         score += 2.0
         reasons.append("Genre match (+2.0)")
 
-    # Mood match
     if song['mood'] == user_prefs['mood']:
         score += 1.0
         reasons.append("Mood match (+1.0)")
 
-    # Energy similarity
-    energy_diff = abs(song['energy'] - user_prefs['energy'])
-    energy_score = max(0, 1 - energy_diff)
+    energy_score = 1 - abs(song['energy'] - user_prefs['energy'])
     score += energy_score
     reasons.append(f"Energy similarity (+{energy_score:.2f})")
 
     return score, reasons
 
 def recommend_songs(user_prefs: Dict, songs: List[Dict], k: int = 5) -> List[Tuple[Dict, float, str]]:
-    scored = []
-
-    for song in songs:
-        score, reasons = score_song(user_prefs, song)
-        explanation = ", ".join(reasons)
-        scored.append((song, score, explanation))
-
-    # Sort by score descending
-    scored = sorted(scored, key=lambda x: x[1], reverse=True)
-
-    return scored[:k]
+    """Return the top-k songs ranked by score for the given user preferences."""
+    scored = [
+        (song, score, ", ".join(reasons))
+        for song in songs
+        for score, reasons in (score_song(user_prefs, song),)
+    ]
+    return sorted(scored, key=lambda x: x[1], reverse=True)[:k]
