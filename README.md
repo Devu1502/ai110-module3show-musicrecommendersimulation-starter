@@ -11,23 +11,47 @@ Your goal is to:
 - Evaluate what your system gets right and wrong
 - Reflect on how this mirrors real world AI recommenders
 
-Replace this paragraph with your own summary of what your version does.
+This project builds a simple content-based music recommender system. It takes a user’s preferences like genre, mood, and energy level, and compares them with a dataset of songs. Each song is given a score based on how closely it matches the user’s taste, and the system recommends the highest scoring songs. The goal is to simulate how real-world platforms like Spotify suggest music using structured data and ranking logic.
 
 ---
 
 ## How The System Works
 
-Explain your design in plain language.
+This recommender system uses a **content-based filtering approach**, meaning it recommends songs by comparing song features directly with a user’s preferences.
 
-Some prompts to answer:
+### Features Used
 
-- What features does each `Song` use in your system
-  - For example: genre, mood, energy, tempo
-- What information does your `UserProfile` store
-- How does your `Recommender` compute a score for each song
-- How do you choose which songs to recommend
+Each song contains:
+- Genre (e.g., pop, rock, lofi)
+- Mood (e.g., happy, sad, chill)
+- Energy (a value between 0.0 and 1.0)
+- Tempo (beats per minute)
 
-You can include a simple diagram or bullet list if helpful.
+The user profile includes:
+- Preferred genre
+- Preferred mood
+- Target energy level
+
+### Scoring Logic
+
+Each song is given a score based on:
+
+- +2.0 points if the genre matches the user’s preference
+- +1.0 point if the mood matches
+- + (1 - energy difference) to reward songs with similar energy levels
+
+Songs closer to the user’s energy preference receive higher scores.
+
+### Recommendation Process
+
+1. The system loads all songs from the dataset
+2. Each song is scored individually using the scoring logic
+3. Songs are sorted from highest to lowest score
+4. The top K songs are recommended to the user
+
+### Potential Bias
+
+This system may over-prioritize genre and repeatedly recommend similar songs, creating a “filter bubble.” It may also ignore good matches in mood or energy if the genre does not match.
 
 ---
 

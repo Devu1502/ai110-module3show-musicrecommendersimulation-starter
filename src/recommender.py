@@ -1,5 +1,6 @@
 from typing import List, Dict, Tuple, Optional
 from dataclasses import dataclass
+import csv
 
 @dataclass
 class Song:
@@ -46,13 +47,18 @@ class Recommender:
         return "Explanation placeholder"
 
 def load_songs(csv_path: str) -> List[Dict]:
-    """
-    Loads songs from a CSV file.
-    Required by src/main.py
-    """
-    # TODO: Implement CSV loading logic
-    print(f"Loading songs from {csv_path}...")
-    return []
+   import csv
+
+def load_songs(filepath):
+    songs = []
+    with open(filepath, mode='r') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            # Convert numeric fields
+            row['energy'] = float(row['energy'])
+            row['tempo_bpm'] = int(row['tempo_bpm'])
+            songs.append(row)
+    return songs
 
 def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
     """
