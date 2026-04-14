@@ -36,12 +36,11 @@ The user profile includes:
 
 Each song is given a score based on:
 
-- +2.0 points if the genre matches the user’s preference
+- +1.0 point if the genre matches the user’s preference
 - +1.0 point if the mood matches
-- + (1 - energy difference) to reward songs with similar energy levels
+- + 2 × (1 - energy difference) to strongly reward songs with similar energy levels
 
-Songs closer to the user’s energy preference receive higher scores.
-Energy similarity is calculated as (1 - absolute difference).
+Songs closer to the user’s energy preference receive higher scores. Because of the increased weight, energy similarity plays the biggest role in ranking songs.
 
 ### Recommendation Process
 
@@ -119,25 +118,68 @@ You can add more tests in `tests/test_recommender.py`.
 
 ## Experiments You Tried
 
-Use this section to document the experiments you ran. For example:
+### Weight Shift Experiment
 
-- What happened when you changed the weight on genre from 2.0 to 0.5
+I changed the scoring by reducing the genre weight from 2.0 to 1.0 and doubling the energy similarity.
+
+After running the system again, I noticed that energy had a much bigger impact on the rankings. Songs with similar energy levels started appearing higher even if the genre did not match.
+
+Because of this, the recommendations became more diverse, but sometimes less accurate for users with strong genre preferences. For example, some songs ranked high mainly because of energy similarity, even though they did not match the genre.
+
+This shows that increasing energy weight makes the system more flexible, but reducing genre weight can reduce precision.
+
 - What happened when you added tempo or valence to the score
 - How did your system behave for different types of users
+
+### System Evaluation
+
+I tested the recommender system using multiple user profiles, including both normal and edge cases:
+
+- High-Energy Pop (clear strong preferences)
+- Chill Lofi (low energy, relaxed mood)
+- Deep Intense Rock (high energy, intense mood)
+- Conflicting Mood (high energy + sad mood)
+- No Preference (no genre or mood specified)
+
+#### Observations
+
+- The system performs well when user preferences are clear and aligned (e.g., High-Energy Pop).
+- In conflicting cases, the system ignores mismatches and only rewards matches, which can lead to less accurate recommendations.
+- When no preferences are provided, the system relies mostly on energy similarity, resulting in more generic recommendations.
+- The model does not penalize incorrect matches, which limits its ability to distinguish poor fits.
+
+#### Accuracy and Surprises
+
+For the "High-Energy Pop" profile, the recommendations felt accurate because the top songs matched both genre and energy closely. Songs like "Sunrise City" ranked highly because of strong alignment with all features.
+
+One surprise was that in some cases, songs with only energy similarity still ranked in the top 5. This shows that energy plays a strong role even when genre or mood do not match.
+
+Additionally, the same songs appeared across multiple profiles, which shows that the dataset is small and that certain features (like energy similarity) dominate the scoring.
+
+After asking Claude why "Sunrise City" ranked #1 for the High-Energy Pop profile, it answered that this happened because it matched all the important features. The genre is pop, which matches the user preference, so it gets +2.0. The mood is also happy, which matches again and adds +1.0. On top of that, the energy level (0.82) is very close to the user’s preference (0.9), so it gets a high energy similarity score of +0.92.
+
+Because of this, its total score becomes 3.92, which is higher than all the other songs.
+
+Other songs didn’t match as well. For example, "Gym Hero" matches the genre and has similar energy, but its mood is different, because of which it doesn’t get the extra +1.0. That is why its total score is lower (2.97).
+
+So overall, songs that match all features clearly rank higher, which is why "Sunrise City" comes out on top.
+
+
+#### Example Outputs
+
+Screenshots of terminal outputs for each profile are included below:
+
+![High Energy](high_energy.png)  
+![Chill Lofi](chill_lofi.png)  
+![Rock](rock.png)  
+![Conflicting](conflict.png)  
+![No Preference](no_pref.png)  
+
 
 ---
 
 ## Limitations and Risks
 
-Summarize some limitations of your recommender.
-
-Examples:
-
-- It only works on a tiny catalog
-- It does not understand lyrics or language
-- It might over favor one genre or mood
-
-You will go deeper on this in your model card.
 
 ---
 
@@ -225,26 +267,23 @@ You can think about:
 
 ## 6. Limitations and Bias
 
-Where does your recommender struggle
+The system is biased toward energy because energy has the biggest weight in the scoring. Because of this, songs with similar energy keep showing up even if the genre or mood does not match well.
 
-Some prompts:
-- Does it ignore some genres or moods
-- Does it treat all users as if they have the same taste shape
-- Is it biased toward high energy or one genre by default
-- How could this be unfair if used in a real product
+Also, some users are not handled properly. For example, if a user chooses a mood like "sad" but there are no songs with that mood in the dataset, then the system just ignores mood completely.
+
+Another issue is that the dataset is very small, so the same songs appear again and again. This creates a filter bubble where users don’t get much variety in recommendations.
 
 ---
 
 ## 7. Evaluation
 
-How did you check your system
+I tested the system using different user profiles like High-Energy Pop, Chill Lofi, Deep Intense Rock, Conflicting Mood, and No Preference.
 
-Examples:
-- You tried multiple user profiles and wrote down whether the results matched your expectations
-- You compared your simulation to what a real app like Spotify or YouTube tends to recommend
-- You wrote tests for your scoring logic
+I noticed that when the preferences are clear, the results look correct. For example, High-Energy Pop gives songs that are upbeat and energetic.
 
-You do not need a numeric metric, but if you used one, explain what it measures.
+One surprising thing was that some songs showed up in multiple profiles. This happens because energy has a strong influence, so songs with similar energy keep ranking high even if other features don’t match.
+
+Also, when the user has no preference or conflicting preferences, the system mostly depends on energy, which makes the recommendations less meaningful.
 
 ---
 
