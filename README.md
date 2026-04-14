@@ -128,9 +128,6 @@ Because of this, the recommendations became more diverse, but sometimes less acc
 
 This shows that increasing energy weight makes the system more flexible, but reducing genre weight can reduce precision.
 
-- What happened when you added tempo or valence to the score
-- How did your system behave for different types of users
-
 ### System Evaluation
 
 I tested the recommender system using multiple user profiles, including both normal and edge cases:
