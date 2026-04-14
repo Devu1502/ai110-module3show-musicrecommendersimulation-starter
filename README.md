@@ -200,7 +200,7 @@ I also saw how bias can appear in the system. For example, giving too much impor
 
 ---
 
-## 7. `model_card_template.md`
+## 7. `model_card`
 
 ```markdown
 # 🎧 Model Card - Music Recommender Simulation
